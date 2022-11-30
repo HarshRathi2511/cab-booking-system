@@ -1,5 +1,6 @@
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import Constants.Constants;
 import Models.Student;
@@ -66,6 +67,15 @@ public class CabBookingApplication {
 
         AdminService.debugRequests();
         AdminService.groupTravellers();
+
+
+        try {
+            TimeUnit.SECONDS.sleep(4);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+        }
+
+        AdminService.debugGroups();
 
     }
 }

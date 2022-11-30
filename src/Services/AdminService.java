@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import Interfaces.AdminInterface;
 import Models.*;
@@ -25,6 +27,9 @@ public class AdminService implements AdminInterface {
     private static Comparator<TripRequest> cmTripReq = (TripRequest tr1, TripRequest tr2) -> tr1.getDate()
             .compareTo(tr2.getDate());
 
+    private static ArrayList<ArrayList<TripRequest>> groupedTravellers = new ArrayList<ArrayList<TripRequest>>();
+    private static Lock requestLock = new ReentrantLock(true);
+
     public static void registerStudent(Student student) {
         if (registeredStudents.contains(student)) {
             // already registered
@@ -37,16 +42,34 @@ public class AdminService implements AdminInterface {
     public static List<Student> getRegisteredStudents() {
         return registeredStudents;
     }
+    
+    private void toggleIncomingRequestsLock(Boolean lock){
+      if(lock){
+        requestLock.lock();
+      }else{
+        requestLock.unlock();
+      }
+    }
 
     public static synchronized void handleRequests(TripRequest tripRequest) {
-        if (requestsMap.containsKey(tripRequest.getTripId())) {
-            // add in the array list
-            requestsMap.get(tripRequest.getTripId()).add(tripRequest);
-        } else {
-            ArrayList<TripRequest> newRequestArray = new ArrayList<TripRequest>();
-            newRequestArray.add(tripRequest);
-            requestsMap.put(tripRequest.getTripId(), newRequestArray);
+
+        //need an implementation to lock this method when grouping is taking place 
+
+        // request
+        try {
+            if (requestsMap.containsKey(tripRequest.getTripId())) {
+                // add in the array list
+                requestsMap.get(tripRequest.getTripId()).add(tripRequest);
+            } else {
+                ArrayList<TripRequest> newRequestArray = new ArrayList<TripRequest>();
+                newRequestArray.add(tripRequest);
+                requestsMap.put(tripRequest.getTripId(), newRequestArray);
+            }
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
+
     }
 
     public static void debugRequests() {
@@ -57,7 +80,21 @@ public class AdminService implements AdminInterface {
             for (TripRequest tr : requestsMap.get(key)) {
                 System.out.println(tr.toString());
             }
+            System.out.println();
+            System.out.println();
+            System.out.println();
         }
+    }
+
+    public static void debugGroups() {
+        // System.out.println(requestsMap);
+
+        System.out.println(groupedTravellers.size());
+        System.out.println();
+
+        System.out.println();
+
+        System.out.println(groupedTravellers);
     }
 
     // method to group the people
@@ -66,28 +103,32 @@ public class AdminService implements AdminInterface {
             // create a new thread which executes this method
             Thread groupingThread = new Thread() {
                 public void run() {
-                    System.out.println("grouping Thread Started for "+ tripDateDestKey);
+                    System.out.println("grouping Thread Started for " + tripDateDestKey);
                     groupTravellersInArrayList(tripDateDestKey);
                 }
             };
 
-            //start the new thread 
+            // start the new thread
             groupingThread.start();
         }
     }
 
     // each thread is going to execute this method
     // searchKey :- pilani_jaipur_30 ()
-    //not making it synchronized as it is immutable for this stage and many threads are now working on it 
+    // not making it synchronized as it is immutable for this stage and many threads
+    // are now working on it
     public static void groupTravellersInArrayList(String searchKey) {
         ArrayList<TripRequest> travelRequestArray = requestsMap.get(searchKey);
         Collections.sort(travelRequestArray, cmTripReq); // sorted according to time
+
+        System.out.println();
+        System.out.println();
 
         for (int i = 0; i < travelRequestArray.size(); i++) {
 
             // new subarray of the trip requests (later create a new thread to send invites
             // to each of the students //think about it )
-            List<TripRequest> tripGroup = new ArrayList<TripRequest>();
+            ArrayList<TripRequest> tripGroup = new ArrayList<TripRequest>();
 
             while (tripGroup.size() < Trip.MAX_CO_PASSENGERS) {
                 // check for time +- 30 mins to each student
@@ -95,7 +136,7 @@ public class AdminService implements AdminInterface {
                 // the start and end date
 
                 // check for ensuring next element exists
-                if (!(i+1 < requestsMap.size())) {
+                if (!(i + 1 < requestsMap.size())) {
                     TripRequest currentRequest = travelRequestArray.get(i);
                     TripRequest nextRequest = travelRequestArray.get(i + 1);
                     long duration = currentRequest.getDate().getTime() - nextRequest.getDate().getTime();
@@ -139,6 +180,7 @@ public class AdminService implements AdminInterface {
             System.out.println();
             System.out.println();
             System.out.println(tripGroup);
+            groupedTravellers.add(tripGroup);
 
         }
 
