@@ -7,6 +7,11 @@ public class Student implements StudentInterface {
     private int phoneNumber;
     private String id;
 
+    public Student(String name, int phoneNumber, String id) {
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.id = id;
+    }
     public String getName() {
         return name;
     }
