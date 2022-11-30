@@ -16,6 +16,9 @@ public class Trip {
     private TripStatus tripStatus;
     private double totalTripCost;
 
+    //co passenger limit 
+    public static int MAX_CO_PASSENGERS = 4;
+
     public Trip(List<Student> coPassengers, String tripId, String startLocation, String endLocation, Date departureDate,
             TripStatus tripStatus, double totalTripCost) {
         this.coPassengers = coPassengers;
