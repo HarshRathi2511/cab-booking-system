@@ -10,9 +10,6 @@ public class TripRequest extends Thread{
     private Date date;
     private String startLocation;
     private String endLocation;
-    //trip requests 
-    //reject :- remove it from the array () 
-    private TripRequestStatus tripRequestFeedback; //accepted | rejected | no response 
 
     
     public TripRequest(Student student, Date date, String startLocation, String endLocation){
@@ -22,7 +19,7 @@ public class TripRequest extends Thread{
         this.endLocation = endLocation;
 
         //enum 
-        this.tripRequestFeedback = TripRequestStatus.NO_RESPONSE; 
+        // this.tripRequestFeedback = TripRequestStatus.NO_RESPONSE; 
     }
      
 
@@ -53,13 +50,6 @@ public class TripRequest extends Thread{
     public String getTripId(){  //eg pilani_jaipur_30
         return this.startLocation+"_"+ this.endLocation+"_"+this.date.getDate();
     }
-    public TripRequestStatus getTripRequestFeedback() {
-        return tripRequestFeedback;
-    }
-    public void setTripRequestFeedback(TripRequestStatus tripRequestFeedback) {
-        this.tripRequestFeedback = tripRequestFeedback;
-    }
-
 
     //this method will be executed by the thread 
     public void run(){
@@ -70,7 +60,7 @@ public class TripRequest extends Thread{
     @Override
     public String toString() {
         return "TripRequest [student=" + student + ", date=" + date + ", startLocation=" + startLocation
-                + ", endLocation=" + endLocation + ", tripRequestFeedback=" + tripRequestFeedback + "]";
+                + ", endLocation=" + endLocation + ", tripRequestFeedback="  + "]";
     } 
     
 }
