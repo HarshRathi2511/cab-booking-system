@@ -20,13 +20,13 @@ public class Trip {
     public static int MAX_CO_PASSENGERS = 4;
 
     public Trip(List<Student> coPassengers, String tripId, String startLocation, String endLocation, Date departureDate,
-            TripStatus tripStatus, double totalTripCost) {
+             double totalTripCost) {
         this.coPassengers = coPassengers;
         this.tripId = tripId;
         this.startLocation = startLocation;
         this.endLocation = endLocation;
         this.departureDate = departureDate;
-        this.tripStatus = tripStatus;
+        this.tripStatus = TripStatus.PROPOSED;
         this.totalTripCost = totalTripCost;
     }
 

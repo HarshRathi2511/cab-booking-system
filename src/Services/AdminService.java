@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -42,18 +43,18 @@ public class AdminService implements AdminInterface {
     public static List<Student> getRegisteredStudents() {
         return registeredStudents;
     }
-    
-    private void toggleIncomingRequestsLock(Boolean lock){
-      if(lock){
-        requestLock.lock();
-      }else{
-        requestLock.unlock();
-      }
+
+    private void toggleIncomingRequestsLock(Boolean lock) {
+        if (lock) {
+            requestLock.lock();
+        } else {
+            requestLock.unlock();
+        }
     }
 
     public static synchronized void handleRequests(TripRequest tripRequest) {
 
-        //need an implementation to lock this method when grouping is taking place 
+        // need an implementation to lock this method when grouping is taking place
 
         // request
         try {
@@ -101,6 +102,8 @@ public class AdminService implements AdminInterface {
     public static void groupTravellers() {
         for (String tripDateDestKey : requestsMap.keySet()) {
             // create a new thread which executes this method
+            // ThreadGroup groThreadGroup = new ThreadGroup("groupingThreadGroup");
+
             Thread groupingThread = new Thread() {
                 public void run() {
                     System.out.println("grouping Thread Started for " + tripDateDestKey);
@@ -184,5 +187,31 @@ public class AdminService implements AdminInterface {
 
         }
 
+    }
+
+    // make the Trip class from the grouped travellers
+    public static Trip generateTripFromTripRequests(ArrayList<TripRequest> tripRequests) {
+        ArrayList<Student> coPassengers = new ArrayList<Student>();
+        // add the students
+        for (TripRequest tripRequest : tripRequests) {
+            coPassengers.add(tripRequest.getStudent());
+        }
+        // should be the max of all the preferred dates
+        Date dateTimeOfTravel = tripRequests.stream().map(t -> t.getDate()).max(Date::compareTo).get();
+
+        double totalTripCost = generateTripCost(tripRequests.get(0).getStartLocation(),
+                tripRequests.get(0).getEndLocation());
+
+        String tripId = tripRequests.get(0).getTripId() + tripRequests.get(0).getDate().toString();
+
+        Trip generatedTrip = new Trip(coPassengers, tripId, tripRequests.get(0).getStartLocation(),
+                tripRequests.get(0).getEndLocation(), dateTimeOfTravel, totalTripCost);
+
+        return generatedTrip;        
+    }
+
+    public static double generateTripCost(String startLocation, String endLocation) {
+        // complete this method @utkarsh (hardcode vals) :- Jaipur to Delhi etc
+        return 0.0;
     }
 }
