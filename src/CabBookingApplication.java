@@ -1,10 +1,10 @@
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import Constants.Constants;
-import Models.Student;
-import Models.TripRequest;
+import Models.*;
 import Services.AdminService;
 
 /**
@@ -17,27 +17,34 @@ public class CabBookingApplication {
 
         //register some students 
         Student s1 = new Student(
-            "Harsh",9,"20120"
+            "Harsh",9,"1"
         );
         Student s2 = new Student(
-            "YS",9,"20230"
+            "YS",9,"2"
         );
         Student s3 = new Student(
-            "uTKARS",9,"20203"
+            "uTKARS",9,"3"
         );
         Student s4 = new Student(
-            "devayus",9,"20201"
+            "devayus",9,"4"
         );
         Student s5 = new Student(
-            "haha",9,"20203"
+            "haha",9,"5"
         );
+        AdminService.registerStudent(s1);
+        AdminService.registerStudent(s2);
+        AdminService.registerStudent(s3);
+        AdminService.registerStudent(s4);
+        AdminService.registerStudent(s5);
+
+        System.out.println(AdminService.getRegisteredStudents().size()+ " students registered");
         
         //dates 
         String d1 = "31-Dec-1998 23:37:50";  
         String d2 = "31-Dec-1998 23:40:50";  
         String d3 = "31-Dec-1998 23:58:50";  
-        String d4 = "30-Dec-1998 23:58:50";  
-        String d5 = "30-Dec-1998 22:58:50";  
+        String d4 = "31-Dec-1998 23:58:50";  
+        String d5 = "31-Dec-1998 23:58:50";  
         SimpleDateFormat formatter=new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");
         Date date1=formatter.parse(d1);  
         Date date2=formatter.parse(d2);  
@@ -48,7 +55,7 @@ public class CabBookingApplication {
         
         
         TripRequest t1 = new TripRequest(s1,date1,Constants.Pilani, Constants.Delhi);
-        TripRequest t2 = new TripRequest(s2,date2,Constants.Pilani, Constants.Jaipur);
+        TripRequest t2 = new TripRequest(s2,date2,Constants.Pilani, Constants.Delhi);
         TripRequest t3 = new TripRequest(s3,date3,Constants.Pilani, Constants.Delhi);
         TripRequest t4 = new TripRequest(s4,date4,Constants.Pilani, Constants.Delhi);
         TripRequest t5 = new TripRequest(s5,date5,Constants.Pilani, Constants.Delhi);
@@ -66,16 +73,45 @@ public class CabBookingApplication {
         t5.join();
 
         AdminService.debugRequests();
-        AdminService.groupTravellers();
+        // AdminService.groupTravellers();
 
+        String searchKey = "Pilani_Delhi_31";
 
-        try {
-            TimeUnit.SECONDS.sleep(4);
-        } catch (InterruptedException ie) {
-            Thread.currentThread().interrupt();
+        ArrayList<TripRequest> requestsGroupedTogether= AdminService.getRequestsMap().get(searchKey);
+        // Trip trip = AdminService.generateTripFromTripRequests(requestsGroupedTogether);
+        // System.out.print(trip.toString());  //trip has been created 
+
+        //now send invites 
+        AdminService.sendTripRequests(requestsGroupedTogether); 
+
+        // System.out.println(AdminService.getMapOftripRequestFromAdminsForIndvStudent());
+        
+        
+        //prints the pending requests for each student 
+        for(int i =0;i<AdminService.getRegisteredStudents().size();i++){
+            System.out.println();
+            Student student = AdminService.getRegisteredStudents().get(i);
+
+           ArrayList<TripRequestFromAdmin> pendingRequestForStudent =  AdminService.getPendingRequestsForAStudent(student);
+           System.out.println(pendingRequestForStudent.size()+ " requests for student "+student.getName());
+
+           for (TripRequestFromAdmin requestFromAdmin : pendingRequestForStudent) {
+               System.out.println(requestFromAdmin.toString());
+           }
         }
 
-        AdminService.debugGroups();
+
+        //now try reponding to each of the requests 
+        
+
+
+        // try {
+        //     TimeUnit.SECONDS.sleep(4);
+        // } catch (InterruptedException ie) {
+        //     Thread.currentThread().interrupt();
+        // }
+
+        // AdminService.debugGroups();
 
     }
 }
