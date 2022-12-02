@@ -67,9 +67,12 @@ public class CabBookingApplication {
         t5.join();
 
         AdminService.debugRequests();
-        // AdminService.groupTravellers();
 
-        // ONE SINGLE OPERATION FOR ALL THE SEARCH KEYS
+        //USE THIS TO START GROUPING USING MULTITHREADING 
+        // AdminService.groupTravellers();
+        
+        //ITERATE OVER EVERY SEARCH KEY AND USE THE SORTING ALGORITHM TO GET REQUESTS GROUPED TOGETHER 
+        // ONE SINGLE OPERATION FOR ALL THE SEARCH KEYS 
         String searchKey = "Pilani_Delhi_31";
         ArrayList<TripRequest> requestsGroupedTogether = AdminService.getRequestsMap().get(searchKey);
         Trip trip = AdminService.generateTripFromTripRequests(requestsGroupedTogether);
@@ -81,6 +84,8 @@ public class CabBookingApplication {
 
         // System.out.println(AdminService.getMapOftripRequestFromAdminsForIndvStudent());
 
+
+        //...................USE THESE FUNCTIONS FOR CLI 
         // prints the pending requests for each student
         for (int i = 0; i < AdminService.getRegisteredStudents().size(); i++) {
             System.out.println();
@@ -94,7 +99,7 @@ public class CabBookingApplication {
                 System.out.println(requestFromAdmin.toString());
             }
         }
-
+        
         // now try reponding to each of the requests
         for (int i = 0; i < AdminService.getRegisteredStudents().size(); i++) {
             System.out.println();
@@ -110,7 +115,7 @@ public class CabBookingApplication {
                 // if (requestFromAdmin.getStudent()==s1) {
                 //     // AdminService.respondToARequest(requestFromAdmin, TripRequestStatus.REJECTED);
                 // }
-
+                //USE THIS FUNCTION IN CLI ARGUMENT 
                 AdminService.respondToARequest(requestFromAdmin, TripRequestStatus.REJECTED);
             }
         }
@@ -126,8 +131,11 @@ public class CabBookingApplication {
 
         System.out.println("Parsing trips after students have responded");
         System.out.println("\n");
-        AdminService.parseTripGroupsForStartingTrip();
 
+        //THIS FUNCTION HAS SOME BUG:- code hangs here
+        AdminService.parseTripGroupsForStartingTrip();
+        
+        //PRINTS FINAL TRIPS THAT HAVE BEEN SCHEDULED AFTER PARSING 
         System.out.println(AdminService.getMapOfTrips());
 
         // try {
