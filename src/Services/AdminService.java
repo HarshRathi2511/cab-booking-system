@@ -318,7 +318,8 @@ public class AdminService implements AdminInterface {
             }else {
                 //@utkarsh update the indv cost for each student according to number of copassengers 
 
-
+                //now the trip is SCHEDULED 
+                trip.setTripStatus(TripStatus.SCHEDULED);
                 //update the trip instance in the map 
                 addTripToMap(tripId, trip);
             }
