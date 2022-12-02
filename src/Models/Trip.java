@@ -1,9 +1,11 @@
 package Models;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import Enums.TripStatus;
+import Enums.*;
 
 public class Trip {
     private List<Student> coPassengers;
@@ -16,7 +18,10 @@ public class Trip {
     private TripStatus tripStatus;
     private double totalTripCost;
 
-    //co passenger limit 
+    // map of indv responses
+    private HashMap<String, TripRequestStatus> everyPassengerStatusMap;
+
+    // co passenger limit
     public static int MAX_CO_PASSENGERS = 4;
 
     public Trip(List<Student> coPassengers, String tripId, String startLocation, String endLocation, Date departureDate,
@@ -28,6 +33,31 @@ public class Trip {
         this.departureDate = departureDate;
         this.tripStatus = tripStatus;
         this.totalTripCost = totalTripCost;
+
+        this.everyPassengerStatusMap = generateEveryPassengerStatusMap();
+
+    }
+
+    private HashMap<String, TripRequestStatus> generateEveryPassengerStatusMap() {
+        HashMap<String, TripRequestStatus> everyPassengerStatusMap = new HashMap<String, TripRequestStatus>();
+
+        // fill it with default NO_RESPONSE
+        for (Student coPassengers : this.coPassengers) {
+            everyPassengerStatusMap.put(coPassengers.getId(), TripRequestStatus.NO_RESPONSE);
+        }
+
+        return everyPassengerStatusMap;
+    }
+
+    public void removeCoPassenger(Student student) {
+        try {
+            this.coPassengers.remove(student);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            System.out.println(student.getName() + " is not a copassenger:ERR cant remove");
+
+        }
+
     }
 
     public List<Student> getCoPassengers() {
@@ -87,13 +117,6 @@ public class Trip {
     }
 
     @Override
-    public String toString() {
-        return "Trip [coPassengers=" + coPassengers + ", tripId=" + tripId + ", startLocation=" + startLocation
-                + ", endLocation=" + endLocation + ", departureDate=" + departureDate + ", tripStatus=" + tripStatus
-                + ", totalTripCost=" + totalTripCost + "]";
-    }
-
-    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -106,7 +129,31 @@ public class Trip {
         long temp;
         temp = Double.doubleToLongBits(totalTripCost);
         result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result + ((everyPassengerStatusMap == null) ? 0 : everyPassengerStatusMap.hashCode());
         return result;
+    }
+
+    public HashMap<String, TripRequestStatus> getEveryPassengerStatusMap() {
+        return everyPassengerStatusMap;
+    }
+
+    public void setEveryPassengerStatusMap(HashMap<String, TripRequestStatus> everyPassengerStatusMap) {
+        this.everyPassengerStatusMap = everyPassengerStatusMap;
+    }
+
+    public static int getMAX_CO_PASSENGERS() {
+        return MAX_CO_PASSENGERS;
+    }
+
+    public static void setMAX_CO_PASSENGERS(int mAX_CO_PASSENGERS) {
+        MAX_CO_PASSENGERS = mAX_CO_PASSENGERS;
+    }
+
+    @Override
+    public String toString() {
+        return "Trip [coPassengers=" + coPassengers + ", tripId=" + tripId + ", startLocation=" + startLocation
+                + ", endLocation=" + endLocation + ", departureDate=" + departureDate + ", tripStatus=" + tripStatus
+                + ", totalTripCost=" + totalTripCost + ", everyPassengerStatusMap=" + everyPassengerStatusMap + "]";
     }
 
     @Override
@@ -146,6 +193,11 @@ public class Trip {
         if (tripStatus != other.tripStatus)
             return false;
         if (Double.doubleToLongBits(totalTripCost) != Double.doubleToLongBits(other.totalTripCost))
+            return false;
+        if (everyPassengerStatusMap == null) {
+            if (other.everyPassengerStatusMap != null)
+                return false;
+        } else if (!everyPassengerStatusMap.equals(other.everyPassengerStatusMap))
             return false;
         return true;
     }
