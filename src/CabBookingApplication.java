@@ -43,7 +43,7 @@ public class CabBookingApplication {
 
         // dates
         String d1 = "31-Dec-1998 20:37:50";
-        String d2 = "31-Dec-1998 23:40:50";
+        String d2 = "31-Dec-1998 2:40:50";
         String d3 = "31-Dec-1998 23:58:50";
         String d4 = "31-Dec-1998 23:58:50";
         String d5 = "31-Dec-1998 23:59:50";

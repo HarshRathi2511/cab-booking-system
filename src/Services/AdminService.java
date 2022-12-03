@@ -149,8 +149,8 @@ public class AdminService implements AdminInterface {
         Collections.sort(Clone, cmTripReq);
 
 
-        System.out.println();
-        System.out.println();
+        // System.out.println();
+        // System.out.println();
         while (Clone.size() != 0) {
 
 
@@ -183,7 +183,7 @@ public class AdminService implements AdminInterface {
 
                     if (diffInMinutes <= 30 && tripGroup.size() < Trip.MAX_CO_PASSENGERS) {
                         tripGroup.add(currentRequest);
-                        System.out.println(tripGroup.size());
+                        // System.out.println(tripGroup.size());
 
                         j++;
 
@@ -209,8 +209,8 @@ public class AdminService implements AdminInterface {
 
 
             // then handle the trip sizes
-            System.out.println();
-            System.out.println();
+            // System.out.println();
+            // System.out.println();
             //System.out.println(tripGroup);
             groupedTravellers.add(tripGroup);
         }
@@ -420,6 +420,13 @@ public class AdminService implements AdminInterface {
         System.out.println();
 
         System.out.println();
+
+        for (ArrayList<TripRequest> groupedTravellersArray : groupedTravellers) {
+            System.out.println("subgroup size and elements are :- "+ groupedTravellersArray.size());
+            for(TripRequest tripRequest: groupedTravellersArray){
+                System.out.println(tripRequest.toString());
+            }
+        }
 
         System.out.println(groupedTravellers);
     }
