@@ -61,6 +61,51 @@ public class TripRequest extends Thread{
     public String toString() {
         return "TripRequest [student=" + student + ", date=" + date + ", startLocation=" + startLocation
                 + ", endLocation=" + endLocation + ", tripRequestFeedback="  + "]";
-    } 
-    
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((student == null) ? 0 : student.hashCode());
+        result = prime * result + ((date == null) ? 0 : date.hashCode());
+        result = prime * result + ((startLocation == null) ? 0 : startLocation.hashCode());
+        result = prime * result + ((endLocation == null) ? 0 : endLocation.hashCode());
+        return result;
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        TripRequest other = (TripRequest) obj;
+        if (student == null) {
+            if (other.student != null)
+                return false;
+        } else if (!student.equals(other.student))
+            return false;
+        if (date == null) {
+            if (other.date != null)
+                return false;
+        } else if (!date.equals(other.date))
+            return false;
+        if (startLocation == null) {
+            if (other.startLocation != null)
+                return false;
+        } else if (!startLocation.equals(other.startLocation))
+            return false;
+        if (endLocation == null) {
+            if (other.endLocation != null)
+                return false;
+        } else if (!endLocation.equals(other.endLocation))
+            return false;
+        return true;
+    }
+
 }
+

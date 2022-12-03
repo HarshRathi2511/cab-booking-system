@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import Constants.Constants;
 import Enums.TripRequestStatus;
 import Enums.TripStatus;
 import Interfaces.AdminInterface;
@@ -28,8 +29,12 @@ public class AdminService implements AdminInterface {
     private static ArrayList<ArrayList<TripRequest>> groupedTravellers = new ArrayList<ArrayList<TripRequest>>();
     private static Lock requestLock = new ReentrantLock(true);
 
-    //each key is the student id as it is unique 
-    private static Map<String,ArrayList<TripRequestFromAdmin>> mapOftripRequestFromAdmins = new HashMap<String,ArrayList<TripRequestFromAdmin>>();
+    // each key is the student id as it is unique
+    private static Map<String, ArrayList<TripRequestFromAdmin>> mapOftripRequestFromAdminsForIndvStudent = new HashMap<String, ArrayList<TripRequestFromAdmin>>();
+
+    // map which has the list of trips :- trip id as the key and the Trip instance
+    // as the value
+    private static Map<String, Trip> mapOfTrips = new HashMap<String, Trip>();
 
     public static void registerStudent(Student student) {
         if (registeredStudents.contains(student)) {
@@ -52,6 +57,39 @@ public class AdminService implements AdminInterface {
     // }
     // }
 
+    // helper methods : to add the trip in the map
+    public static void addTripToMap(String tripId, Trip trip) {
+        // if(mapOfTrips.containsKey(tripId)){
+
+        // mapOfTrips.put(tripId, trip);
+        // }else {
+        mapOfTrips.put(tripId, trip);
+        // }
+    }
+
+    public static void removeTripFromMap(String tripId) {
+        // if(mapOfTrips.containsKey(tripId)){
+
+        // mapOfTrips.put(tripId, trip);
+        // }else {
+        mapOfTrips.remove(tripId);
+        // }
+    }
+
+    public static void addRequestFromStudent (Student student ,Date date, String startLocation,String endLocation) {
+        TripRequest t1 = new TripRequest(student, date, startLocation, endLocation);
+
+        //some changes :- create ThreadPools to handle lets say 50 threads at a time (later)
+        t1.start();
+        //runs the handleRequest method
+        try {
+            t1.join();
+        }catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    //DO NOT USE THIS DIRECTLY :- HELPER METHOD FOR THE ABOVE FUNCTION
     public static synchronized void handleRequests(TripRequest tripRequest) {
 
         // need an implementation to lock this method when grouping is taking place
@@ -87,6 +125,12 @@ public class AdminService implements AdminInterface {
 
             // start the new thread
             groupingThread.start();
+            try{
+                groupingThread.join();
+            }
+            catch(Exception e) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 
@@ -95,78 +139,93 @@ public class AdminService implements AdminInterface {
     // not making it synchronized as it is immutable for this stage and many threads
     // are now working on it
     // NOT WORKING PROPERLY !!!1
-    public static void groupTravellersInArrayList(String searchKey) {
+    public static void groupTravellersInArrayList (String searchKey){
         ArrayList<TripRequest> travelRequestArray = requestsMap.get(searchKey);
-        Collections.sort(travelRequestArray, cmTripReq); // sorted according to time
-
-        System.out.println();
-        System.out.println();
-
+        ArrayList<TripRequest> Clone = new ArrayList<TripRequest>();
         for (int i = 0; i < travelRequestArray.size(); i++) {
+            Clone.add(travelRequestArray.get(i));
+        }
+
+        Collections.sort(Clone, cmTripReq);
+
+
+        System.out.println();
+        System.out.println();
+        while (Clone.size() != 0) {
+
+
+            ArrayList<TripRequest> tripGroup = new ArrayList<TripRequest>();
+
+
+            TripRequest firstRequest = Clone.get(0);
+
+            tripGroup.add(firstRequest);
+
+
+            //for (int i = 0; i < travelRequestArray.size(); i++) {
 
             // new subarray of the trip requests (later create a new thread to send invites
             // to each of the students //think about it )
-            ArrayList<TripRequest> tripGroup = new ArrayList<TripRequest>();
 
-            while (tripGroup.size() < Trip.MAX_CO_PASSENGERS) {
+
+            int j = 1;
+
+            while (tripGroup.size() <= Trip.MAX_CO_PASSENGERS) {
                 // check for time +- 30 mins to each student
                 // find the period between
                 // the start and end date
+                if (j < Clone.size()) {
+                    TripRequest currentRequest = Clone.get(j);
 
-                // check for ensuring next element exists
-                if (!(i + 1 < requestsMap.size())) {
-                    TripRequest currentRequest = travelRequestArray.get(i);
-                    TripRequest nextRequest = travelRequestArray.get(i + 1);
-                    long duration = currentRequest.getDate().getTime() - nextRequest.getDate().getTime();
+                    long duration = currentRequest.getDate().getTime() - firstRequest.getDate().getTime();
 
-                    // long diffInSeconds = TimeUnit.MILLISECONDS.toSeconds(duration);
                     long diffInMinutes = TimeUnit.MILLISECONDS.toMinutes(duration);
-                    // long diffInHours = TimeUnit.MILLISECONDS.toHours(duration);
-                    // long diffInDays = TimeUnit.MILLISECONDS.toDays(duration);
 
-                    if (diffInMinutes < 30) {
-                        if (!tripGroup.contains(currentRequest)) {
-                            tripGroup.add(currentRequest);
-                        }
-                        if (tripGroup.size() < Trip.MAX_CO_PASSENGERS) {
-                            tripGroup.add(nextRequest);
-                        } else {
-                            // seats full
-                            break;
-                        }
-                        i++;
+                    if (diffInMinutes <= 30 && tripGroup.size() < Trip.MAX_CO_PASSENGERS) {
+                        tripGroup.add(currentRequest);
+                        System.out.println(tripGroup.size());
+
+                        j++;
+
+
                     } else {
-                        // time diff more group the current request and then check in the nxt iteration
-                        // whether the next request can be grouped
-                        if (!tripGroup.contains(currentRequest)) {
-                            tripGroup.add(currentRequest);
-
-                        }
+                        Clone.remove(tripGroup);
 
                         break;
-                    }
 
-                } else {
-                    // group that element seperately as no other request there
-                    tripGroup.add(travelRequestArray.get(i));
+
+                    }
+                } else
                     break;
-                }
+
+
+                // check for ensuring next element exists
 
             }
+            for (TripRequest i : tripGroup) {
+                Clone.remove(i);
+
+            }
+
 
             // then handle the trip sizes
             System.out.println();
             System.out.println();
-            System.out.println(tripGroup);
+            //System.out.println(tripGroup);
             groupedTravellers.add(tripGroup);
-
         }
 
+
     }
+
 
     // after the grouping send out requests to each user
     public static void sendTripRequests(ArrayList<TripRequest> tripRequests) {
         Trip generatedTrip = generateTripFromTripRequests(tripRequests);
+
+        // store that trip generated in the map (here first time the trip objects is
+        // generated)
+        addTripToMap(generatedTrip.getTripId(), generatedTrip);
 
         // create a TripRequestFromAdmin instance for each user
         for (TripRequest tripRequest : tripRequests) {
@@ -174,55 +233,120 @@ public class AdminService implements AdminInterface {
             Student indvStudent = tripRequest.getStudent();
             TripRequestFromAdmin tripRequestFromAdmin = new TripRequestFromAdmin(indvStudent, generatedTrip,
                     TripRequestStatus.NO_RESPONSE); // no response as the user has yet to submit accepted and rejected
-                   
 
-                    //add it in the map of requests 
-                    if (mapOftripRequestFromAdmins.containsKey(indvStudent.getId())) {
-                        // add in the array list
-                        mapOftripRequestFromAdmins.get(indvStudent.getId()).add(tripRequestFromAdmin);
-                    } else {
-                        ArrayList<TripRequestFromAdmin> newRequestArray = new ArrayList<TripRequestFromAdmin>();
-                        newRequestArray.add(tripRequestFromAdmin);
-                        mapOftripRequestFromAdmins.put(tripRequest.getTripId(), newRequestArray);
-                    }
+            // add it in the map of requests
+            if (mapOftripRequestFromAdminsForIndvStudent.containsKey(indvStudent.getId())) {
+                // add in the array list
+                mapOftripRequestFromAdminsForIndvStudent.get(indvStudent.getId()).add(tripRequestFromAdmin);
+            } else {
+                ArrayList<TripRequestFromAdmin> newRequestArray = new ArrayList<TripRequestFromAdmin>();
+                newRequestArray.add(tripRequestFromAdmin);
+                mapOftripRequestFromAdminsForIndvStudent.put(indvStudent.getId(), newRequestArray);
+            }
+
+            System.out.println("sent trip request to " + indvStudent.getName());
         }
     }
 
-    //get the pendng list of trip requests for an individual 
-    public static ArrayList<TripRequestFromAdmin> getPendingRequestsForAStudent(Student student){
+    // get the pendng list of trip requests for an individual
+    public static ArrayList<TripRequestFromAdmin> getPendingRequestsForAStudent(Student student) {
         ArrayList<TripRequestFromAdmin> tripRequestForStudent = new ArrayList<TripRequestFromAdmin>();
 
-        if (mapOftripRequestFromAdmins.containsKey(student.getId())) {
+        if (mapOftripRequestFromAdminsForIndvStudent.containsKey(student.getId())) {
             // add in the array list
-            return mapOftripRequestFromAdmins.get(student.getId());
+
+            return mapOftripRequestFromAdminsForIndvStudent.get(student.getId());
         } else {
             ArrayList<TripRequestFromAdmin> emptyRequestsFromAdmin = new ArrayList<TripRequestFromAdmin>();
             return emptyRequestsFromAdmin;
         }
-        
+
     }
 
-    //respond acccepted or rejected to a particular trip request 
-    public static void respondToARequest(TripRequestFromAdmin tripRequestFromAdmin , TripRequestStatus tripRequestResponse){
-        //find the student and then change the map of vals also 
+    // respond acccepted or rejected to a particular trip request
+    public static void respondToARequest(TripRequestFromAdmin tripRequestFromAdmin,
+                                         TripRequestStatus tripRequestResponse) {
+        // find the student and then change the map of vals also
         Student student = tripRequestFromAdmin.getStudent();
 
-        if (mapOftripRequestFromAdmins.containsKey(student.getId())) {
-            // find the trip request and then append it 
-            ArrayList<TripRequestFromAdmin> tripRequestFromAdminsForStudent = mapOftripRequestFromAdmins.get(student.getId());
-            if(tripRequestFromAdminsForStudent.contains(tripRequestFromAdmin)){
-                //append it 
+        // set the trip response in the map for indv students
+        if (mapOftripRequestFromAdminsForIndvStudent.containsKey(student.getId())) {
+            // find the trip request and then append it
+            ArrayList<TripRequestFromAdmin> tripRequestFromAdminsForStudent = mapOftripRequestFromAdminsForIndvStudent
+                    .get(student.getId());
+            if (tripRequestFromAdminsForStudent.contains(tripRequestFromAdmin)) {
+                // append it
                 int i = tripRequestFromAdminsForStudent.indexOf(tripRequestFromAdmin);
-                //change it in the map 
+                // change it in the map
                 tripRequestFromAdminsForStudent.get(i).setTripRequestStatus(tripRequestResponse);
             }
 
-           
         } else {
-            //this student is not registered 
-            //throw exception for this
+            System.out.println("Student not registered");
+            // this student is not registered
+            // throw exception for this
         }
 
+        // set it in the trip map
+        // change the trip object
+        Trip underlyingTrip = tripRequestFromAdmin.getTrip();
+        // change vals in the map
+        HashMap<String, TripRequestStatus> everyPassengerStatusMap = underlyingTrip.getEveryPassengerStatusMap();
+        //
+        for (String studentId : everyPassengerStatusMap.keySet()) {
+            if (student.getId() == studentId) {
+                everyPassengerStatusMap.put(studentId, tripRequestResponse);
+            }
+
+        }
+
+        underlyingTrip.setEveryPassengerStatusMap(everyPassengerStatusMap);
+        addTripToMap(underlyingTrip.getTripId(), underlyingTrip);
+
+    }
+
+    // method:- parsing for each trip and then generate which trip is feasible
+    // (this method runs after everyone has responded yes or no)
+    public static void parseTripGroupsForStartingTrip() {
+        for (String tripId : mapOfTrips.keySet()) {
+            // iterate
+            Trip trip = mapOfTrips.get(tripId);
+            HashMap<String, TripRequestStatus> everyCoPassengerStatusMap = trip.getEveryPassengerStatusMap();
+
+            // checks
+            // for (Student coPassenger : trip.getCoPassengers()) {
+            //     if (everyCoPassengerStatusMap.get(coPassenger.getId()) == TripRequestStatus.REJECTED) {
+            //         // remove that person from the map
+            //         trip.removeCoPassenger(coPassenger);
+            //     }
+            // }
+
+            while (trip.getCoPassengers().iterator().hasNext()) {
+                Student coPassenger = trip.getCoPassengers().iterator().next();
+                if (everyCoPassengerStatusMap.get(coPassenger.getId()) == TripRequestStatus.REJECTED) {
+                    // remove that person from the map
+                    trip.removeCoPassenger(coPassenger);
+                }
+
+            }
+
+            // if every copassenger rejected this request
+            if (trip.getCoPassengers().size() == 0) {
+                // delete this trip from the map
+                removeTripFromMap(tripId);
+
+            }else {
+                //@utkarsh update the indv cost for each student according to number of copassengers
+                double indvCost=generateTripCost(trip.getStartLocation(),trip.getEndLocation())/trip.getCoPassengers().size();
+                trip.setTotalTripCost(indvCost);
+
+                //now the trip is SCHEDULED
+                trip.setTripStatus(TripStatus.SCHEDULED);
+                //update the trip instance in the map
+                addTripToMap(tripId, trip);
+            }
+
+        }
     }
 
 
@@ -238,8 +362,9 @@ public class AdminService implements AdminInterface {
 
         double totalTripCost = generateTripCost(tripRequests.get(0).getStartLocation(),
                 tripRequests.get(0).getEndLocation());
-
-        String tripId = tripRequests.get(0).getTripId() + tripRequests.get(0).getDate().toString();
+        // generating a unique trip id for each trip
+        String tripId = tripRequests.get(0).getTripId() + tripRequests.get(0).getDate().toString()
+                + tripRequests.get(0).getStudent().toString();
 
         // trip status :- check every request (and see if it is accepted)
         TripStatus tripStatus = TripStatus.PROPOSED;
@@ -252,7 +377,18 @@ public class AdminService implements AdminInterface {
 
     public static double generateTripCost(String startLocation, String endLocation) {
         // complete this method @utkarsh (hardcode vals) :- Jaipur to Delhi etc
-        return 0.0;
+        double value=0;
+        if((startLocation==Constants.Delhi&&endLocation==Constants.Pilani)||(startLocation==Constants.Pilani&&endLocation==Constants.Delhi)){
+            value=1500;
+
+        }
+        if((startLocation==Constants.Jaipur&&endLocation==Constants.Pilani)||(startLocation==Constants.Pilani&&endLocation==Constants.Jaipur)){
+
+            value=1000;
+
+        }
+
+        return value;
     }
 
     // method: for sending out requests for each student (create a new class named
@@ -286,5 +422,58 @@ public class AdminService implements AdminInterface {
         System.out.println();
 
         System.out.println(groupedTravellers);
+    }
+
+    public static void setRegisteredStudents(List<Student> registeredStudents) {
+        AdminService.registeredStudents = registeredStudents;
+    }
+
+    public static Map<String, ArrayList<TripRequest>> getRequestsMap() {
+        return requestsMap;
+    }
+
+    public static void setRequestsMap(Map<String, ArrayList<TripRequest>> requestsMap) {
+        AdminService.requestsMap = requestsMap;
+    }
+
+    public static Comparator<TripRequest> getCmTripReq() {
+        return cmTripReq;
+    }
+
+    public static void setCmTripReq(Comparator<TripRequest> cmTripReq) {
+        AdminService.cmTripReq = cmTripReq;
+    }
+
+    public static ArrayList<ArrayList<TripRequest>> getGroupedTravellers() {
+        return groupedTravellers;
+    }
+
+    public static void setGroupedTravellers(ArrayList<ArrayList<TripRequest>> groupedTravellers) {
+        AdminService.groupedTravellers = groupedTravellers;
+    }
+
+    public static Lock getRequestLock() {
+        return requestLock;
+    }
+
+    public static void setRequestLock(Lock requestLock) {
+        AdminService.requestLock = requestLock;
+    }
+
+    public static Map<String, ArrayList<TripRequestFromAdmin>> getMapOftripRequestFromAdminsForIndvStudent() {
+        return mapOftripRequestFromAdminsForIndvStudent;
+    }
+
+    public static void setMapOftripRequestFromAdminsForIndvStudent(
+            Map<String, ArrayList<TripRequestFromAdmin>> mapOftripRequestFromAdminsForIndvStudent) {
+        AdminService.mapOftripRequestFromAdminsForIndvStudent = mapOftripRequestFromAdminsForIndvStudent;
+    }
+
+    public static Map<String, Trip> getMapOfTrips() {
+        return mapOfTrips;
+    }
+
+    public static void setMapOfTrips(Map<String, Trip> mapOfTrips) {
+        AdminService.mapOfTrips = mapOfTrips;
     }
 }

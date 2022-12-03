@@ -1,7 +1,10 @@
 package Interfaces;
 
 public interface StudentInterface {
-    // void register();
+    public static  void register(){
+
+    };
+
     // void acceptTrip();
     // void rejectTrip();
 }
