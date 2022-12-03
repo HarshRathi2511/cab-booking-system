@@ -75,9 +75,84 @@ public class CabBookingApplication {
 
         AdminService.debugRequests();
 
-        //USE THIS TO START GROUPING USING MULTITHREADING
-        AdminService.groupTravellers();
-        AdminService.debugGroups();
+        //USE THIS TO START GROUPING USING MULTITHREADING 
+        // AdminService.groupTravellers();
+        
+        //ITERATE OVER EVERY SEARCH KEY AND USE THE SORTING ALGORITHM TO GET REQUESTS GROUPED TOGETHER 
+        // ONE SINGLE OPERATION FOR ALL THE SEARCH KEYS 
+        String searchKey = "Pilani_Delhi_31";
+        ArrayList<TripRequest> requestsGroupedTogether = AdminService.getRequestsMap().get(searchKey);
+        Trip trip = AdminService.generateTripFromTripRequests(requestsGroupedTogether);
+        // System.out.print(trip.toString()); //trip has been created
+
+        AdminService.addTripToMap(searchKey, trip);
+        // now send invites
+        AdminService.sendTripRequests(requestsGroupedTogether);
+
+        // System.out.println(AdminService.getMapOftripRequestFromAdminsForIndvStudent());
+
+
+        //...................USE THESE FUNCTIONS FOR CLI 
+        // prints the pending requests for each student
+        for (int i = 0; i < AdminService.getRegisteredStudents().size(); i++) {
+            System.out.println();
+            Student student = AdminService.getRegisteredStudents().get(i);
+
+            ArrayList<TripRequestFromAdmin> pendingRequestForStudent = AdminService
+                    .getPendingRequestsForAStudent(student);
+            System.out.println(pendingRequestForStudent.size() + " requests for student " + student.getName());
+
+            for (TripRequestFromAdmin requestFromAdmin : pendingRequestForStudent) {
+                System.out.println(requestFromAdmin.toString());
+            }
+        }
+        
+        // now try reponding to each of the requests
+        for (int i = 0; i < AdminService.getRegisteredStudents().size(); i++) {
+            System.out.println();
+            Student student = AdminService.getRegisteredStudents().get(i);
+
+            ArrayList<TripRequestFromAdmin> pendingRequestForStudent = AdminService
+                    .getPendingRequestsForAStudent(student);
+            System.out.println("responding to requests:-  " + pendingRequestForStudent.size() + " requests for student "
+                    + student.getName());
+
+            for (TripRequestFromAdmin requestFromAdmin : pendingRequestForStudent) {
+                // respond with accepted
+                // if (requestFromAdmin.getStudent()==s1) {
+                //     // AdminService.respondToARequest(requestFromAdmin, TripRequestStatus.REJECTED);
+                // }
+                //USE THIS FUNCTION IN CLI ARGUMENT 
+                AdminService.respondToARequest(requestFromAdmin, TripRequestStatus.REJECTED);
+            }
+        }
+
+        // then try printing the trip map
+        System.out.println(AdminService.getMapOfTrips());
+
+        System.out.println("\n");
+
+        
+
+        System.out.println("\n");
+
+        System.out.println("Parsing trips after students have responded");
+        System.out.println("\n");
+
+        //THIS FUNCTION HAS SOME BUG:- code hangs here
+        AdminService.parseTripGroupsForStartingTrip();
+        
+        //PRINTS FINAL TRIPS THAT HAVE BEEN SCHEDULED AFTER PARSING 
+        System.out.println(AdminService.getMapOfTrips());
+
+        // try {
+        // TimeUnit.SECONDS.sleep(4);
+        // } catch (InterruptedException ie) {
+        // Thread.currentThread().interrupt();
+        // }
+
+        // AdminService.debugGroups();
+
     }
 }
 

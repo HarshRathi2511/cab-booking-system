@@ -4,6 +4,11 @@ import Enums.TripRequestStatus;
 
 //If this instance has been created then the request has been sent to the user (this is after grouping the members )
 public class TripRequestFromAdmin {
+    @Override
+    public String toString() {
+        return "TripRequestFromAdmin [student=" + student + ", trip=" + trip + ", tripRequestStatus="
+                + tripRequestStatus + "]";
+    }
     private Student student;
     private Trip trip; //for which trip the admin has sent the request 
     private TripRequestStatus tripRequestStatus;

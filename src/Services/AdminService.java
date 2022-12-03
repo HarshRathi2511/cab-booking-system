@@ -205,7 +205,11 @@ public class AdminService implements AdminInterface {
             for (TripRequest i : tripGroup) {
                 Clone.remove(i);
 
-            }
+        // } else {
+        // // group that element seperately as no other request there
+        // tripGroup.add(travelRequestArray.get(i));
+        // break;
+        // }
 
 
             // then handle the trip sizes
@@ -265,7 +269,7 @@ public class AdminService implements AdminInterface {
 
     // respond acccepted or rejected to a particular trip request
     public static void respondToARequest(TripRequestFromAdmin tripRequestFromAdmin,
-                                         TripRequestStatus tripRequestResponse) {
+            TripRequestStatus tripRequestResponse) {
         // find the student and then change the map of vals also
         Student student = tripRequestFromAdmin.getStudent();
 
@@ -349,6 +353,47 @@ public class AdminService implements AdminInterface {
         }
     }
 
+    // method:- parsing for each trip and then generate which trip is feasible
+    // (this method runs after everyone has responded yes or no)
+    public static void parseTripGroupsForStartingTrip() {
+        for (String tripId : mapOfTrips.keySet()) {
+            // iterate
+            Trip trip = mapOfTrips.get(tripId);
+            HashMap<String, TripRequestStatus> everyCoPassengerStatusMap = trip.getEveryPassengerStatusMap();
+
+            // checks
+            // for (Student coPassenger : trip.getCoPassengers()) {
+            //     if (everyCoPassengerStatusMap.get(coPassenger.getId()) == TripRequestStatus.REJECTED) {
+            //         // remove that person from the map
+            //         trip.removeCoPassenger(coPassenger);
+            //     }
+            // }
+
+            while (trip.getCoPassengers().iterator().hasNext()) {
+                Student coPassenger = trip.getCoPassengers().iterator().next();
+                if (everyCoPassengerStatusMap.get(coPassenger.getId()) == TripRequestStatus.REJECTED) {
+                    // remove that person from the map
+                    trip.removeCoPassenger(coPassenger);
+                }
+                
+            }
+
+            // if every copassenger rejected this request
+            if (trip.getCoPassengers().size() == 0) {
+                // delete this trip from the map
+                removeTripFromMap(tripId);
+
+            }else {
+                //@utkarsh update the indv cost for each student according to number of copassengers 
+
+                //now the trip is SCHEDULED 
+                trip.setTripStatus(TripStatus.SCHEDULED);
+                //update the trip instance in the map 
+                addTripToMap(tripId, trip);
+            }
+
+        }
+    }
 
     // make the Trip class from the grouped travellers
     public static Trip generateTripFromTripRequests(ArrayList<TripRequest> tripRequests) {
