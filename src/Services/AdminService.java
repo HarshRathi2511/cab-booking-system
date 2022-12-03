@@ -76,20 +76,21 @@ public class AdminService implements AdminInterface {
         // }
     }
 
-    public static void addRequestFromStudent (Student student ,Date date, String startLocation,String endLocation) {
+    public static void addRequestFromStudent(Student student, Date date, String startLocation, String endLocation) {
         TripRequest t1 = new TripRequest(student, date, startLocation, endLocation);
 
-        //some changes :- create ThreadPools to handle lets say 50 threads at a time (later)
+        // some changes :- create ThreadPools to handle lets say 50 threads at a time
+        // (later)
         t1.start();
-        //runs the handleRequest method
+        // runs the handleRequest method
         try {
             t1.join();
-        }catch(Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
 
-    //DO NOT USE THIS DIRECTLY :- HELPER METHOD FOR THE ABOVE FUNCTION
+    // DO NOT USE THIS DIRECTLY :- HELPER METHOD FOR THE ABOVE FUNCTION
     public static synchronized void handleRequests(TripRequest tripRequest) {
 
         // need an implementation to lock this method when grouping is taking place
@@ -125,10 +126,9 @@ public class AdminService implements AdminInterface {
 
             // start the new thread
             groupingThread.start();
-            try{
+            try {
                 groupingThread.join();
-            }
-            catch(Exception e) {
+            } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
         }
@@ -139,7 +139,7 @@ public class AdminService implements AdminInterface {
     // not making it synchronized as it is immutable for this stage and many threads
     // are now working on it
     // NOT WORKING PROPERLY !!!1
-    public static void groupTravellersInArrayList (String searchKey){
+    public static void groupTravellersInArrayList(String searchKey) {
         ArrayList<TripRequest> travelRequestArray = requestsMap.get(searchKey);
         ArrayList<TripRequest> Clone = new ArrayList<TripRequest>();
         for (int i = 0; i < travelRequestArray.size(); i++) {
@@ -148,25 +148,20 @@ public class AdminService implements AdminInterface {
 
         Collections.sort(Clone, cmTripReq);
 
-
         // System.out.println();
         // System.out.println();
         while (Clone.size() != 0) {
 
-
             ArrayList<TripRequest> tripGroup = new ArrayList<TripRequest>();
-
 
             TripRequest firstRequest = Clone.get(0);
 
             tripGroup.add(firstRequest);
 
-
-            //for (int i = 0; i < travelRequestArray.size(); i++) {
+            // for (int i = 0; i < travelRequestArray.size(); i++) {
 
             // new subarray of the trip requests (later create a new thread to send invites
             // to each of the students //think about it )
-
 
             int j = 1;
 
@@ -187,17 +182,14 @@ public class AdminService implements AdminInterface {
 
                         j++;
 
-
                     } else {
                         Clone.remove(tripGroup);
 
                         break;
 
-
                     }
                 } else
                     break;
-
 
                 // check for ensuring next element exists
 
@@ -205,23 +197,21 @@ public class AdminService implements AdminInterface {
             for (TripRequest i : tripGroup) {
                 Clone.remove(i);
 
-        // } else {
-        // // group that element seperately as no other request there
-        // tripGroup.add(travelRequestArray.get(i));
-        // break;
-        // }
+                // } else {
+                // // group that element seperately as no other request there
+                // tripGroup.add(travelRequestArray.get(i));
+                // break;
+                // }
 
-
-            // then handle the trip sizes
-            // System.out.println();
-            // System.out.println();
-            //System.out.println(tripGroup);
-            groupedTravellers.add(tripGroup);
+                // then handle the trip sizes
+                // System.out.println();
+                // System.out.println();
+                // System.out.println(tripGroup);
+                groupedTravellers.add(tripGroup);
+            }
         }
 
-
     }
-
 
     // after the grouping send out requests to each user
     public static void sendTripRequests(ArrayList<TripRequest> tripRequests) {
@@ -319,10 +309,11 @@ public class AdminService implements AdminInterface {
 
             // checks
             // for (Student coPassenger : trip.getCoPassengers()) {
-            //     if (everyCoPassengerStatusMap.get(coPassenger.getId()) == TripRequestStatus.REJECTED) {
-            //         // remove that person from the map
-            //         trip.removeCoPassenger(coPassenger);
-            //     }
+            // if (everyCoPassengerStatusMap.get(coPassenger.getId()) ==
+            // TripRequestStatus.REJECTED) {
+            // // remove that person from the map
+            // trip.removeCoPassenger(coPassenger);
+            // }
             // }
 
             while (trip.getCoPassengers().iterator().hasNext()) {
@@ -339,56 +330,13 @@ public class AdminService implements AdminInterface {
                 // delete this trip from the map
                 removeTripFromMap(tripId);
 
-            }else {
-                //@utkarsh update the indv cost for each student according to number of copassengers
-                double indvCost=generateTripCost(trip.getStartLocation(),trip.getEndLocation())/trip.getCoPassengers().size();
-                trip.setTotalTripCost(indvCost);
+            } else {
+                // @utkarsh update the indv cost for each student according to number of
+                // copassengers
 
-                //now the trip is SCHEDULED
+                // now the trip is SCHEDULED
                 trip.setTripStatus(TripStatus.SCHEDULED);
-                //update the trip instance in the map
-                addTripToMap(tripId, trip);
-            }
-
-        }
-    }
-
-    // method:- parsing for each trip and then generate which trip is feasible
-    // (this method runs after everyone has responded yes or no)
-    public static void parseTripGroupsForStartingTrip() {
-        for (String tripId : mapOfTrips.keySet()) {
-            // iterate
-            Trip trip = mapOfTrips.get(tripId);
-            HashMap<String, TripRequestStatus> everyCoPassengerStatusMap = trip.getEveryPassengerStatusMap();
-
-            // checks
-            // for (Student coPassenger : trip.getCoPassengers()) {
-            //     if (everyCoPassengerStatusMap.get(coPassenger.getId()) == TripRequestStatus.REJECTED) {
-            //         // remove that person from the map
-            //         trip.removeCoPassenger(coPassenger);
-            //     }
-            // }
-
-            while (trip.getCoPassengers().iterator().hasNext()) {
-                Student coPassenger = trip.getCoPassengers().iterator().next();
-                if (everyCoPassengerStatusMap.get(coPassenger.getId()) == TripRequestStatus.REJECTED) {
-                    // remove that person from the map
-                    trip.removeCoPassenger(coPassenger);
-                }
-                
-            }
-
-            // if every copassenger rejected this request
-            if (trip.getCoPassengers().size() == 0) {
-                // delete this trip from the map
-                removeTripFromMap(tripId);
-
-            }else {
-                //@utkarsh update the indv cost for each student according to number of copassengers 
-
-                //now the trip is SCHEDULED 
-                trip.setTripStatus(TripStatus.SCHEDULED);
-                //update the trip instance in the map 
+                // update the trip instance in the map
                 addTripToMap(tripId, trip);
             }
 
@@ -422,14 +370,16 @@ public class AdminService implements AdminInterface {
 
     public static double generateTripCost(String startLocation, String endLocation) {
         // complete this method @utkarsh (hardcode vals) :- Jaipur to Delhi etc
-        double value=0;
-        if((startLocation==Constants.Delhi&&endLocation==Constants.Pilani)||(startLocation==Constants.Pilani&&endLocation==Constants.Delhi)){
-            value=1500;
+        double value = 0;
+        if ((startLocation == Constants.Delhi && endLocation == Constants.Pilani)
+                || (startLocation == Constants.Pilani && endLocation == Constants.Delhi)) {
+            value = 1500;
 
         }
-        if((startLocation==Constants.Jaipur&&endLocation==Constants.Pilani)||(startLocation==Constants.Pilani&&endLocation==Constants.Jaipur)){
+        if ((startLocation == Constants.Jaipur && endLocation == Constants.Pilani)
+                || (startLocation == Constants.Pilani && endLocation == Constants.Jaipur)) {
 
-            value=1000;
+            value = 1000;
 
         }
 
@@ -467,13 +417,11 @@ public class AdminService implements AdminInterface {
         System.out.println();
 
         for (ArrayList<TripRequest> groupedTravellersArray : groupedTravellers) {
-            System.out.println("subgroup size and elements are :- "+ groupedTravellersArray.size());
-            for(TripRequest tripRequest: groupedTravellersArray){
+            System.out.println("subgroup size and elements are :- " + groupedTravellersArray.size());
+            for (TripRequest tripRequest : groupedTravellersArray) {
                 System.out.println(tripRequest.toString());
             }
         }
-
-        System.out.println(groupedTravellers);
     }
 
     public static void setRegisteredStudents(List<Student> registeredStudents) {
