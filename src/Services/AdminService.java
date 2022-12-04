@@ -1,6 +1,12 @@
 
 package Services;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -21,8 +27,13 @@ import Interfaces.AdminInterface;
 import Interfaces.AdminServiceInterface;
 import Models.*;
 
-public class AdminService {
+public class AdminService implements Serializable{
     private static List<Student> registeredStudents = new ArrayList<Student>();
+
+    //file handling variables 
+    static File file=new File("Student.txt");
+     static ObjectOutputStream oos=null;
+     static ObjectInputStream ois=null;
 
     // to handle all the incoming requests
     private static Map<String, ArrayList<TripRequest>> requestsMap = new HashMap<String, ArrayList<TripRequest>>();
@@ -44,16 +55,43 @@ public class AdminService {
     public static ExecutorService groupTravllersThreadPool = Executors
             .newFixedThreadPool(10);
 
-    public static boolean registerStudent(Student student) {
-        if (registeredStudents.contains(student)) {
-            // already registered
-            System.out.println("Student Already Registered");
-            return true;
-        } else {
-            registeredStudents.add(student);
-            return false;
+    // public static boolean registerStudent(Student student) {
+    //     if (registeredStudents.contains(student)) {
+    //         // already registered
+    //         System.out.println("Student Already Registered");
+    //         return true;
+    //     } else {
+    //         registeredStudents.add(student);
+    //         return false;
+    //     }
+    // }
+    public static boolean registerStudent(Student student) throws java.io.IOException,ClassNotFoundException{
+        if(AdminService.file.isFile()){
+            ois=new ObjectInputStream(new FileInputStream(file));
+            registeredStudents=(ArrayList<Student>)ois.readObject();
+            if(registeredStudents.contains(student)){
+                System.out.println("Student Already Registered");
+                return true;
+            }
+            else{
+                registeredStudents.add(student);
+                return false;
+            }
+        }
+        else {
+
+
+            if (registeredStudents.contains(student)) {
+                // already registered
+                System.out.println("Student Already Registered");
+                return true;
+            } else {
+                registeredStudents.add(student);
+                return false;
+            }
         }
     }
+
 
     public static List<Student> getRegisteredStudents() {
         return registeredStudents;
@@ -422,6 +460,19 @@ public class AdminService {
         }
 
         return value;
+    }
+
+    public static void fileWriter() {
+        try {
+            oos = new ObjectOutputStream(new FileOutputStream(file));
+            oos.writeObject(registeredStudents);
+            oos.close();
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+
+
     }
 
     public static void debugRequests() {

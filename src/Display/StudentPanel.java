@@ -89,12 +89,18 @@ public class StudentPanel extends JPanel {
 		regButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Student s = new Student(nameField.getText(), Integer.parseInt(phoneField.getText()), IDField.getText());
-				if (AdminService.registerStudent(s)) {
-					JOptionPane.showMessageDialog(null, "Student Already Registered , LOGIN Instead");
-				} else {
-					new AddTrips(s).setVisible(true);
-					setVisible(false);
+				try {
+					if (AdminService.registerStudent(s)) {
+						JOptionPane.showMessageDialog(null, "Student Already Registered , LOGIN Instead");
+					} else {
+						new AddTrips(s).setVisible(true);
+						setVisible(false);
+					}
+				} catch (Exception exception) {
+					// TODO: handle exception
+					System.out.println(exception.getMessage());
 				}
+				
 			}
 		});
 
