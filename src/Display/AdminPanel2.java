@@ -25,8 +25,8 @@ public class AdminPanel2 extends JFrame {
 		this.setSize(1140, 600);
 		this.setResizable(true);
 
-		JPanel panel2 = new JPanel();
-		panel2.setLayout(new BoxLayout(panel2, BoxLayout.Y_AXIS));
+		JScrollPane panel2 = new JScrollPane();
+		panel2.setLayout(new BoxLayout(panel2, ScrollPaneLayout.VERTICAL_SCROLLBAR_AS_NEEDED));
 
 		panel2.setName("Admin Interfcae");
 

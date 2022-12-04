@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class Student implements StudentInterface, Serializable {
     private String name;
-    private int phoneNumber;
+    private long phoneNumber;
     private String id;
     private double totalCost;
 
@@ -28,7 +28,7 @@ public class Student implements StudentInterface, Serializable {
         this.name = name;
     }
 
-    public int getPhoneNumber() {
+    public long getPhoneNumber() {
         return phoneNumber;
     }
 
@@ -61,15 +61,15 @@ public class Student implements StudentInterface, Serializable {
 
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + phoneNumber;
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        return result;
-    }
+    // @Override
+    // public long hashCode() {
+    //     final int prime = 31;
+    //     long result = 1;
+    //     result = prime * result + ((name == null) ? 0 : name.hashCode());
+    //     result = prime * result + phoneNumber;
+    //     result = prime * result + ((id == null) ? 0 : id.hashCode());
+    //     return result;
+    // }
 
     @Override
     public boolean equals(Object obj) {
