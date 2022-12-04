@@ -90,20 +90,6 @@ public class CabBookingApplication {
         AdminService.groupTravellers();
         AdminService.debugGroups();
 
-        // USE THIS TO START GROUPING USING MULTITHREADING
-        // AdminService.groupTravellers();
-
-        // ITERATE OVER EVERY SEARCH KEY AND USE THE SORTING ALGORITHM TO GET REQUESTS
-        // GROUPED TOGETHER
-        // ONE SINGLE OPERATION FOR ALL THE SEARCH KEYS
-        // String searchKey = "Pilani_Delhi_31";
-        // ArrayList<TripRequest> requestsGroupedTogether =
-        // AdminService.getRequestsMap().get(searchKey);
-        // Trip trip =
-        // AdminService.generateTripFromTripRequests(requestsGroupedTogether);
-        // // System.out.print(trip.toString()); //trip has been created
-
-        // AdminService.addTripToMap(searchKey, trip);
         // now send invites
 
         for (int i = 0; i < AdminService.getGroupedTravellers().size(); i++) {

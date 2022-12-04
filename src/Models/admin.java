@@ -15,12 +15,6 @@ public class admin {
             System.out.println("Error");
         }
     }
-    public void tripCost(){
-
-    }
-    public void trip_algo(){
-
-    }
 
     public void admin_logout() {
         if (logincheck) {
