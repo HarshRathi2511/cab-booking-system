@@ -20,6 +20,17 @@ import Services.AdminService;
 public class CabBookingApplication {
 
     public static void main(String[] args) throws Exception {
+
+
+
+       //To start the gui 
+
+
+
+
+
+
+
         System.out.println("Cab Booking Application");
 
         // register some students

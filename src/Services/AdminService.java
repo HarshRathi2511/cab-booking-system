@@ -51,31 +51,16 @@ public class AdminService implements AdminInterface {
         return registeredStudents;
     }
 
-    // private void toggleIncomingRequestsLock(Boolean lock) {
-    // if (lock) {
-    // requestLock.lock();
-    // } else {
-    // requestLock.unlock();
-    // }
-    // }
-
     // helper methods : to add the trip in the map
     public static void addTripToMap(String tripId, Trip trip) {
-        // if(mapOfTrips.containsKey(tripId)){
 
-        // mapOfTrips.put(tripId, trip);
-        // }else {
         mapOfTrips.put(tripId, trip);
-        // }
+
     }
 
     public static void removeTripFromMap(String tripId) {
-        // if(mapOfTrips.containsKey(tripId)){
 
-        // mapOfTrips.put(tripId, trip);
-        // }else {
         mapOfTrips.remove(tripId);
-        // }
     }
 
     public static void addRequestFromStudent(Student student, Date date, String startLocation, String endLocation) {
@@ -244,15 +229,15 @@ public class AdminService implements AdminInterface {
         }
 
     }
-    
+
     public static void removeProposedTripsForAStudent(Student student) {
-    	 if (mapOftripRequestFromAdminsForIndvStudent.containsKey(student.getId())) {
-             // add in the array list
-    		 ArrayList<TripRequestFromAdmin> emptyRequestsFromAdmin = new ArrayList<TripRequestFromAdmin>();
-              mapOftripRequestFromAdminsForIndvStudent.put(student.getId(),emptyRequestsFromAdmin);
-         } else {
-           //nothing here 
-         }
+        if (mapOftripRequestFromAdminsForIndvStudent.containsKey(student.getId())) {
+            // add in the array list
+            ArrayList<TripRequestFromAdmin> emptyRequestsFromAdmin = new ArrayList<TripRequestFromAdmin>();
+            mapOftripRequestFromAdminsForIndvStudent.put(student.getId(), emptyRequestsFromAdmin);
+        } else {
+            // nothing here
+        }
     }
 
     // respond acccepted or rejected to a particular trip request
@@ -458,10 +443,11 @@ public class AdminService implements AdminInterface {
         }
     }
 
-    public static void debugStudents(){
+    public static void debugStudents() {
         for (Student registeredStudents : AdminService.getRegisteredStudents()) {
             System.out.println(registeredStudents.toString());
-        };
+        }
+        ;
     }
 
     public static void setRegisteredStudents(List<Student> registeredStudents) {
