@@ -148,8 +148,6 @@ public class AdminService implements AdminInterface {
 
         Collections.sort(Clone, cmTripReq);
 
-        // System.out.println();
-        // System.out.println();
         while (Clone.size() != 0) {
 
             ArrayList<TripRequest> tripGroup = new ArrayList<TripRequest>();
@@ -178,7 +176,7 @@ public class AdminService implements AdminInterface {
 
                     if (diffInMinutes <= 30 && tripGroup.size() < Trip.MAX_CO_PASSENGERS) {
                         tripGroup.add(currentRequest);
-                        // System.out.println(tripGroup.size());
+                        System.out.println(tripGroup.size());
 
                         j++;
 
@@ -197,18 +195,12 @@ public class AdminService implements AdminInterface {
             for (TripRequest i : tripGroup) {
                 Clone.remove(i);
 
-                // } else {
-                // // group that element seperately as no other request there
-                // tripGroup.add(travelRequestArray.get(i));
-                // break;
-                // }
-
-                // then handle the trip sizes
-                // System.out.println();
-                // System.out.println();
-                // System.out.println(tripGroup);
-                groupedTravellers.add(tripGroup);
             }
+
+            // then handle the trip sizes
+
+            // System.out.println(tripGroup);
+            groupedTravellers.add(tripGroup);
         }
 
     }
@@ -405,6 +397,19 @@ public class AdminService implements AdminInterface {
             System.out.println();
             System.out.println();
             System.out.println();
+        }
+    }
+
+    public static void debugTrips() {
+        // System.out.println(requestsMap);
+
+        for (String key : mapOfTrips.keySet()) {
+            System.out.println(); 
+            System.out.println(key);
+            System.out.println();
+            Trip tr = mapOfTrips.get(key);
+            System.out.println(tr.toString());
+
         }
     }
 

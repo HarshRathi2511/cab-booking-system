@@ -4,62 +4,60 @@ import Interfaces.StudentInterface;
 import java.io.*;
 import java.util.ArrayList;
 
-
-
-public class Student implements StudentInterface,Serializable {
+public class Student implements StudentInterface, Serializable {
     private String name;
     private int phoneNumber;
     private String id;
-    private  static ArrayList<Trip> pastTrip;
-    private static double totalCost;
+    private double totalCost;
 
-    static File file=new File("Student.txt");
-    static ObjectOutputStream oos=null;
+    static File file = new File("Student.txt");
+    static ObjectOutputStream oos = null;
 
     public Student(String name, int phoneNumber, String id) {
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.id = id;
-        this.pastTrip=null;
 
     }
-
 
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
+
     public int getPhoneNumber() {
         return phoneNumber;
     }
+
     public void setPhoneNumber(int phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
+
     public String getId() {
         return id;
     }
+
     public void setId(String id) {
         this.id = id;
     }
-    public static  void register(String name,int phoneNumber,String id) throws java.io.IOException{
-          Student st=new Student(name,phoneNumber,id);
-          oos=new ObjectOutputStream(new FileOutputStream(file));
-          oos.writeObject(st);
-          oos.close();
+
+    public static void register(String name, int phoneNumber, String id) throws java.io.IOException {
+        Student st = new Student(name, phoneNumber, id);
+        oos = new ObjectOutputStream(new FileOutputStream(file));
+        oos.writeObject(st);
+        oos.close();
 
     }
-    public static void setPastTrip(Trip tr){
-        pastTrip.add(tr);
-    }
 
-    public static double getTotalCost() {
+    public double getTotalCost() {
         return totalCost;
     }
 
-    public static void setTotalCost(double totalCost) {
-        Student.totalCost = totalCost;
+    public void setTotalCost(double totalCost) {
+        this.totalCost = totalCost;
 
     }
 
@@ -72,6 +70,7 @@ public class Student implements StudentInterface,Serializable {
         result = prime * result + ((id == null) ? 0 : id.hashCode());
         return result;
     }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -95,4 +94,5 @@ public class Student implements StudentInterface,Serializable {
             return false;
         return true;
     }
+
 }
