@@ -36,12 +36,14 @@ public class AdminService implements AdminInterface {
     // as the value
     private static Map<String, Trip> mapOfTrips = new HashMap<String, Trip>();
 
-    public static void registerStudent(Student student) {
+    public static boolean registerStudent(Student student) {
         if (registeredStudents.contains(student)) {
             // already registered
             System.out.println("Student Already Registered");
+            return true;
         } else {
             registeredStudents.add(student);
+            return false;
         }
     }
 
@@ -235,13 +237,22 @@ public class AdminService implements AdminInterface {
 
         if (mapOftripRequestFromAdminsForIndvStudent.containsKey(student.getId())) {
             // add in the array list
-
             return mapOftripRequestFromAdminsForIndvStudent.get(student.getId());
         } else {
             ArrayList<TripRequestFromAdmin> emptyRequestsFromAdmin = new ArrayList<TripRequestFromAdmin>();
             return emptyRequestsFromAdmin;
         }
 
+    }
+    
+    public static void removeProposedTripsForAStudent(Student student) {
+    	 if (mapOftripRequestFromAdminsForIndvStudent.containsKey(student.getId())) {
+             // add in the array list
+    		 ArrayList<TripRequestFromAdmin> emptyRequestsFromAdmin = new ArrayList<TripRequestFromAdmin>();
+              mapOftripRequestFromAdminsForIndvStudent.put(student.getId(),emptyRequestsFromAdmin);
+         } else {
+           //nothing here 
+         }
     }
 
     // respond acccepted or rejected to a particular trip request
