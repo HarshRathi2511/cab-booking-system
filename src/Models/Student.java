@@ -56,8 +56,8 @@ public class Student implements StudentInterface, Serializable {
         return totalCost;
     }
 
-    public void setTotalCost(double totalCost) {
-        this.totalCost = totalCost;
+    public void addTotalCost(double totalCost) {
+        this.totalCost += totalCost;
 
     }
 
@@ -93,6 +93,12 @@ public class Student implements StudentInterface, Serializable {
         } else if (!id.equals(other.id))
             return false;
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Student [name=" + name + ", phoneNumber=" + phoneNumber + ", id=" + id + ", totalCost=" + totalCost
+                + "]";
     }
 
 }

@@ -72,36 +72,36 @@ public class CabBookingApplication {
         t3.join();
         t4.join();
         t5.join();
-        
+
         // AdminService.debugRequests();
 
-        //USE THIS TO START GROUPING USING MULTITHREADING
+        // USE THIS TO START GROUPING USING MULTITHREADING
         AdminService.groupTravellers();
         AdminService.debugGroups();
-      
 
-        //USE THIS TO START GROUPING USING MULTITHREADING 
+        // USE THIS TO START GROUPING USING MULTITHREADING
         // AdminService.groupTravellers();
-        
-        //ITERATE OVER EVERY SEARCH KEY AND USE THE SORTING ALGORITHM TO GET REQUESTS GROUPED TOGETHER 
-        // ONE SINGLE OPERATION FOR ALL THE SEARCH KEYS 
+
+        // ITERATE OVER EVERY SEARCH KEY AND USE THE SORTING ALGORITHM TO GET REQUESTS
+        // GROUPED TOGETHER
+        // ONE SINGLE OPERATION FOR ALL THE SEARCH KEYS
         // String searchKey = "Pilani_Delhi_31";
-        // ArrayList<TripRequest> requestsGroupedTogether = AdminService.getRequestsMap().get(searchKey);
-        // Trip trip = AdminService.generateTripFromTripRequests(requestsGroupedTogether);
+        // ArrayList<TripRequest> requestsGroupedTogether =
+        // AdminService.getRequestsMap().get(searchKey);
+        // Trip trip =
+        // AdminService.generateTripFromTripRequests(requestsGroupedTogether);
         // // System.out.print(trip.toString()); //trip has been created
 
         // AdminService.addTripToMap(searchKey, trip);
         // now send invites
 
-    for(int i =0;i<AdminService.getGroupedTravellers().size();i++){
-        AdminService.sendTripRequests(AdminService.getGroupedTravellers().get(i));
-    }
-        
+        for (int i = 0; i < AdminService.getGroupedTravellers().size(); i++) {
+            AdminService.sendTripRequests(AdminService.getGroupedTravellers().get(i));
+        }
 
         // System.out.println(AdminService.getMapOftripRequestFromAdminsForIndvStudent());
 
-
-        //...................USE THESE FUNCTIONS FOR CLI 
+        // ...................USE THESE FUNCTIONS FOR CLI
         // prints the pending requests for each student
         for (int i = 0; i < AdminService.getRegisteredStudents().size(); i++) {
             System.out.println();
@@ -115,7 +115,7 @@ public class CabBookingApplication {
                 System.out.println(requestFromAdmin.toString());
             }
         }
-        
+
         // now try reponding to each of the requests
         for (int i = 0; i < AdminService.getRegisteredStudents().size(); i++) {
             System.out.println();
@@ -129,37 +129,31 @@ public class CabBookingApplication {
             for (TripRequestFromAdmin requestFromAdmin : pendingRequestForStudent) {
                 // respond with accepted
                 // if (requestFromAdmin.getStudent()==s1) {
-                //     // AdminService.respondToARequest(requestFromAdmin, TripRequestStatus.REJECTED);
+                // // AdminService.respondToARequest(requestFromAdmin,
+                // TripRequestStatus.REJECTED);
                 // }
-                //USE THIS FUNCTION IN CLI ARGUMENT 
+                // USE THIS FUNCTION IN CLI ARGUMENT
                 AdminService.respondToARequest(requestFromAdmin, TripRequestStatus.REJECTED);
             }
         }
 
         // then try printing the trip map
 
-        
-
         System.out.println("\n");
 
         System.out.println("Parsing trips after students have responded");
         System.out.println("\n");
 
-        //THIS FUNCTION HAS SOME BUG:- code hangs here
-        // AdminService.parseTripGroupsForStartingTrip();
-        
-        //PRINTS FINAL TRIPS THAT HAVE BEEN SCHEDULED AFTER PARSING 
-       AdminService.debugTrips();
+        // PRINTS FINAL TRIPS THAT HAVE BEEN SCHEDULED AFTER PARSING
 
-        // try {
-        // TimeUnit.SECONDS.sleep(4);
-        // } catch (InterruptedException ie) {
-        // Thread.currentThread().interrupt();
-        // }
+        AdminService.debugTrips();
 
-        // AdminService.debugGroups();
+        // THIS FUNCTION HAS SOME BUG:- code hangs here
+        AdminService.finalSchedulingAndChangingTripStatus();
+        System.out.println();
+        System.out.println("After final scheduling and parsing");
+        AdminService.debugTrips();
+        AdminService.debugStudents();
 
     }
 }
-
-

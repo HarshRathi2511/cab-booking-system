@@ -49,12 +49,13 @@ public class Trip {
         return everyPassengerStatusMap;
     }
 
-    public void removeCoPassenger(Student student) {
+    public void removeCoPassengers(List<Student> students) {
         try {
-            this.coPassengers.remove(student);
+            this.coPassengers.removeAll(students);
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            System.out.println(student.getName() + " is not a copassenger:ERR cant remove");
+            //custom exception here 
+            // System.out.println(student.getName() + " is not a copassenger:ERR cant remove");
 
         }
 
