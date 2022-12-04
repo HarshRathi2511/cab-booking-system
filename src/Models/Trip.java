@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import Enums.*;
+import Exceptions.StudentNotFoundException;
 
 public class Trip {
     private List<Student> coPassengers;
@@ -49,13 +50,14 @@ public class Trip {
         return everyPassengerStatusMap;
     }
 
-    public void removeCoPassengers(List<Student> students) {
+    public void removeCoPassengers(List<Student> students) throws StudentNotFoundException {
         try {
             this.coPassengers.removeAll(students);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             //custom exception here 
             // System.out.println(student.getName() + " is not a copassenger:ERR cant remove");
+            throw new StudentNotFoundException("cant remove this student");
 
         }
 
