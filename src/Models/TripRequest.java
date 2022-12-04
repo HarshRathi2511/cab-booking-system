@@ -11,6 +11,8 @@ public class TripRequest extends Thread{
     private String startLocation;
     private String endLocation;
 
+    public static int THREAD_POOL_SIZE = 10;
+
     
     public TripRequest(Student student, Date date, String startLocation, String endLocation){
         this.student = student;

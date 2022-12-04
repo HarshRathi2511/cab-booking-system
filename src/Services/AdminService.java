@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -35,6 +37,10 @@ public class AdminService implements AdminInterface {
     // map which has the list of trips :- trip id as the key and the Trip instance
     // as the value
     private static Map<String, Trip> mapOfTrips = new HashMap<String, Trip>();
+
+    private static ExecutorService addRequestThreadPool = Executors.newFixedThreadPool(TripRequest.THREAD_POOL_SIZE);
+    public static ExecutorService groupTravllersThreadPool = Executors
+            .newFixedThreadPool(TripRequest.THREAD_POOL_SIZE);
 
     public static void registerStudent(Student student) {
         if (registeredStudents.contains(student)) {
@@ -81,13 +87,21 @@ public class AdminService implements AdminInterface {
 
         // some changes :- create ThreadPools to handle lets say 50 threads at a time
         // (later)
-        t1.start();
-        // runs the handleRequest method
+        // t1.start();
+        // // runs the handleRequest method
+        // try {
+        // t1.join();
+        // } catch (Exception e) {
+        // System.out.println(e.getMessage());
+        // }
+
+        // diff implementation using Executor service
         try {
-            t1.join();
+            addRequestThreadPool.execute(t1);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            // TODO: handle exception
         }
+
     }
 
     // DO NOT USE THIS DIRECTLY :- HELPER METHOD FOR THE ABOVE FUNCTION
@@ -114,6 +128,20 @@ public class AdminService implements AdminInterface {
 
     // method to group the people
     public static void groupTravellers() {
+
+        // while grouping the travellers no new requests should be made
+        addRequestThreadPool.shutdown();
+        try {
+            if (addRequestThreadPool.awaitTermination(800, TimeUnit.MILLISECONDS)) {
+                addRequestThreadPool.shutdownNow();
+            }
+
+        } catch (InterruptedException e) {
+            // TODO: handle exception
+            addRequestThreadPool.shutdownNow();
+        }
+
+        // old code
         for (String tripDateDestKey : requestsMap.keySet()) {
             // create a new thread which executes this method
             // ThreadGroup groThreadGroup = new ThreadGroup("groupingThreadGroup");
@@ -131,6 +159,7 @@ public class AdminService implements AdminInterface {
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
+            // groupTravllersThreadPool.execute(groupingThread);
         }
     }
 
@@ -199,6 +228,25 @@ public class AdminService implements AdminInterface {
         }
 
     }
+
+    // !!!! new method to create threads and then send invites
+    // public static void sendTripInviteToEveryGroupedMember() {
+    //     for (ArrayList<TripRequest> groupedTravellers : AdminService.getGroupedTravellers()) {
+    //         Thread groupingThread = new Thread() {
+    //             public void run() {
+    //                 sendTripRequests(groupedTravellers);
+    //             }
+    //         };
+    //         sendTripInvitesThreadPool.execute(groupingThread);
+    //     }
+    //     try {
+    //         sendTripInvitesThreadPool.awaitTermination(800, TimeUnit.MILLISECONDS);
+    //     } catch (Exception e) {
+    //         // TODO: handle exception
+    //         System.out.println(e.getMessage());
+    //     }
+
+    // }
 
     // after the grouping send out requests to each user
     public static void sendTripRequests(ArrayList<TripRequest> tripRequests) {
@@ -447,10 +495,11 @@ public class AdminService implements AdminInterface {
         }
     }
 
-    public static void debugStudents(){
+    public static void debugStudents() {
         for (Student registeredStudents : AdminService.getRegisteredStudents()) {
             System.out.println(registeredStudents.toString());
-        };
+        }
+        ;
     }
 
     public static void setRegisteredStudents(List<Student> registeredStudents) {

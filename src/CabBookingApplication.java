@@ -55,29 +55,37 @@ public class CabBookingApplication {
         Date date4 = formatter.parse(d4);
         Date date5 = formatter.parse(d5);
 
-        TripRequest t1 = new TripRequest(s1, date1, Constants.Pilani, Constants.Delhi);
-        TripRequest t2 = new TripRequest(s2, date2, Constants.Pilani, Constants.Delhi);
-        TripRequest t3 = new TripRequest(s3, date3, Constants.Pilani, Constants.Delhi);
-        TripRequest t4 = new TripRequest(s4, date4, Constants.Pilani, Constants.Delhi);
-        TripRequest t5 = new TripRequest(s5, date5, Constants.Pilani, Constants.Delhi);
+        // TripRequest t1 = new TripRequest(s1, date1, Constants.Pilani, Constants.Delhi);
+        // TripRequest t2 = new TripRequest(s2, date2, Constants.Pilani, Constants.Delhi);
+        // TripRequest t3 = new TripRequest(s3, date3, Constants.Pilani, Constants.Delhi);
+        // TripRequest t4 = new TripRequest(s4, date4, Constants.Pilani, Constants.Delhi);
+        // TripRequest t5 = new TripRequest(s5, date5, Constants.Pilani, Constants.Delhi);
+        AdminService.addRequestFromStudent(s1, date1, Constants.Pilani, Constants.Delhi);
+        AdminService.addRequestFromStudent(s2, date2, Constants.Pilani, Constants.Delhi);
+        AdminService.addRequestFromStudent(s3, date3, Constants.Pilani, Constants.Delhi);
+        AdminService.addRequestFromStudent(s4, date4, Constants.Pilani, Constants.Delhi);
+        AdminService.addRequestFromStudent(s5, date5, Constants.Pilani, Constants.Delhi);
 
-        t1.start();
-        t2.start();
-        t3.start();
-        t4.start();
-        t5.start();
+        // t1.start();
+        // t2.start();
+        // t3.start();
+        // t4.start();
+        // t5.start();
 
-        t1.join();
-        t2.join();
-        t3.join();
-        t4.join();
-        t5.join();
+        // t1.join();
+        // t2.join();
+        // t3.join();
+        // t4.join();
+        // t5.join();
 
         // AdminService.debugRequests();
 
         // USE THIS TO START GROUPING USING MULTITHREADING
         AdminService.groupTravellers();
-        AdminService.debugGroups();
+        
+      
+        AdminService.debugRequests();
+        // AdminService.debugGroups();
 
         // USE THIS TO START GROUPING USING MULTITHREADING
         // AdminService.groupTravellers();
@@ -94,10 +102,27 @@ public class CabBookingApplication {
 
         // AdminService.addTripToMap(searchKey, trip);
         // now send invites
+        AdminService.addRequestFromStudent(s5, date5, Constants.Pilani, Constants.Delhi);
+        
+       
 
+        //make this into a new function 
+        //!!!!!!1
+        // AdminService.groupTravllersThreadPool.shutdown();
+        // try {
+        //     if (AdminService.groupTravllersThreadPool.awaitTermination(800, TimeUnit.MILLISECONDS)) {
+        //         AdminService.groupTravllersThreadPool.shutdownNow();
+        //     }
+
+        // } catch (InterruptedException e) {
+        //     // TODO: handle exception
+        //     AdminService.groupTravllersThreadPool.shutdownNow();
+        // }
         for (int i = 0; i < AdminService.getGroupedTravellers().size(); i++) {
             AdminService.sendTripRequests(AdminService.getGroupedTravellers().get(i));
         }
+        
+        // AdminService.debugTrips();
 
         // System.out.println(AdminService.getMapOftripRequestFromAdminsForIndvStudent());
 
@@ -116,7 +141,7 @@ public class CabBookingApplication {
             }
         }
 
-        // now try reponding to each of the requests
+        // // now try reponding to each of the requests
         for (int i = 0; i < AdminService.getRegisteredStudents().size(); i++) {
             System.out.println();
             Student student = AdminService.getRegisteredStudents().get(i);
@@ -127,13 +152,7 @@ public class CabBookingApplication {
                     + student.getName());
 
             for (TripRequestFromAdmin requestFromAdmin : pendingRequestForStudent) {
-                // respond with accepted
-                // if (requestFromAdmin.getStudent()==s1) {
-                // // AdminService.respondToARequest(requestFromAdmin,
-                // TripRequestStatus.REJECTED);
-                // }
-                // USE THIS FUNCTION IN CLI ARGUMENT
-                AdminService.respondToARequest(requestFromAdmin, TripRequestStatus.REJECTED);
+                AdminService.respondToARequest(requestFromAdmin, TripRequestStatus.ACCEPTED);
             }
         }
 
@@ -146,7 +165,7 @@ public class CabBookingApplication {
 
         // PRINTS FINAL TRIPS THAT HAVE BEEN SCHEDULED AFTER PARSING
 
-        AdminService.debugTrips();
+        // AdminService.debugTrips();
 
         // THIS FUNCTION HAS SOME BUG:- code hangs here
         AdminService.finalSchedulingAndChangingTripStatus();
@@ -154,6 +173,9 @@ public class CabBookingApplication {
         System.out.println("After final scheduling and parsing");
         AdminService.debugTrips();
         AdminService.debugStudents();
+
+        AdminService.debugRequests();  //see new requests if being made 
+
 
     }
 }
